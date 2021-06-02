@@ -13,6 +13,7 @@ export const LoginPage = () => {
   });
 
   const onChange = ({ target }) => {
+    console.log(form);
     const { name, value } = target;
     setForm({
       ...form,
@@ -38,6 +39,13 @@ export const LoginPage = () => {
     if (!ok) {
       Swal.fire("Error", "Verifique el usuario y contraseña.", "error");
     }
+  };
+
+  const everyThingOk = () => {
+    const { email, password } = form;
+    const ok = email.length > 0 && password.length > 0 ? true : false;
+    console.log(ok);
+    return ok;
   };
 
   useEffect(() => {
@@ -103,7 +111,13 @@ export const LoginPage = () => {
       </div>
 
       <div className="container-login100-form-btn m-t-17">
-        <button className="login100-form-btn">Ingresar</button>
+        <button
+          type="submit"
+          disabled={!everyThingOk()}
+          className="login100-form-btn"
+        >
+          Ingresar
+        </button>
       </div>
     </form>
   );
