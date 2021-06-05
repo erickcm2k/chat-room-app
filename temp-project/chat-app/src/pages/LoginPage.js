@@ -44,7 +44,6 @@ export const LoginPage = () => {
   const everyThingOk = () => {
     const { email, password } = form;
     const ok = email.length > 0 && password.length > 0 ? true : false;
-    console.log(ok);
     return ok;
   };
 

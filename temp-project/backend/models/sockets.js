@@ -7,7 +7,12 @@ class Sockets {
 
   socketEvents() {
     // On connection
-    this.io.on("connection", (socket) => {});
+    this.io.on("connection", (socket) => {
+      console.log("cliente conectado");
+      socket.on("disconnect", () => {
+        console.log("cliente desconectado");
+      });
+    });
   }
 }
 

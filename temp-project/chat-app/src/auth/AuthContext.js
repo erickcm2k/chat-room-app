@@ -1,5 +1,5 @@
 import React, { createContext, useState, useCallback } from "react";
-import { noTokenFetch } from "../helpers/fetch";
+import { noTokenFetch, tokenFetch } from "../helpers/fetch";
 
 export const AuthContext = createContext();
 
@@ -16,17 +16,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const resp = await noTokenFetch("login", { email, password }, "POST");
-    console.log(resp);
     if (resp.ok) {
       localStorage.setItem("token", resp.token);
-      console.log(resp);
-      const { uid, name, email } = resp;
+      const { user } = resp;
+      console.log(user);
       setAuth({
-        uid,
+        uid: user.uid,
         checking: false,
         logged: true,
-        name,
-        email,
+        name: user.name,
+        email: user.email,
       });
     }
 
@@ -43,23 +42,69 @@ export const AuthProvider = ({ children }) => {
     if (resp.ok) {
       localStorage.setItem("token", resp.token);
       console.log(resp);
-      const { uid, name, email } = resp;
+      const { user } = resp;
       setAuth({
-        uid,
+        uid: user.uid,
         checking: false,
         logged: true,
-        name,
-        email,
+        name: user.name,
+        email: user.email,
       });
+      console.log("Autenticado");
       return true;
     }
 
     return resp.msg;
   };
 
-  const checkToken = useCallback(() => {}, []);
+  const checkToken = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setAuth({
+        uid: null,
+        checking: false,
+        logged: false,
+        name: null,
+        email: null,
+      });
+      return false;
+    }
 
-  const logout = () => {};
+    const resp = await tokenFetch("login/renew");
+    if (resp.ok) {
+      localStorage.setItem("token", resp.token);
+      console.log(resp);
+
+      const { user } = resp;
+      setAuth({
+        uid: user.uid,
+        checking: false,
+        logged: true,
+        name: user.name,
+        email: user.email,
+      });
+
+      console.log("Autenticado");
+      return true;
+    } else {
+      setAuth({
+        uid: null,
+        checking: false,
+        logged: false,
+        name: null,
+        email: null,
+      });
+      return false;
+    }
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setAuth({
+      checking: false,
+      logged: false,
+    });
+  };
 
   return (
     <AuthContext.Provider value={{ auth, login, register, checkToken, logout }}>

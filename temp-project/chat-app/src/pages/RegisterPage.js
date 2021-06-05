@@ -13,7 +13,6 @@ export const RegisterPage = () => {
   });
 
   const onChange = ({ target }) => {
-    console.log(form);
     const { name, value } = target;
     setForm({
       ...form,
@@ -37,7 +36,6 @@ export const RegisterPage = () => {
     const { name, email, password } = form;
     const ok =
       email.length > 0 && password.length > 0 && name.length > 0 ? true : false;
-    console.log(ok);
     return ok;
   };
 
