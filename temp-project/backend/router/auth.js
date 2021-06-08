@@ -1,36 +1,40 @@
-const { Router } = require("express");
-const { check } = require("express-validator");
+/*
+    path: api/login
+*/
+const { Router } = require('express');
+const { check }  = require('express-validator');
 
-const { createUser, login, renew } = require("../controllers/auth");
-const { validateFields } = require("../middlewares/validateFields");
-const { validateJWT } = require("../middlewares/validateJWT");
+// Controladores
+const { crearUsuario, login, renewToken } = require('../controllers/auth');
+const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
+
 
 const router = Router();
 
-// Create new users
-router.post(
-  "/new",
-  [
-    check("name", "Name is required").not().isEmpty(),
-    check("email", "Email is required").isEmail(),
-    check("password", "Password is required").not().isEmpty(),
-    validateFields,
-  ],
-  createUser
-);
+// Crear nuevos usuarios
+router.post( '/new', [
+    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('password', 'El password es obligatorio').not().isEmpty(),
+    check('email', 'El email es obligatorio').isEmail(),
+    validarCampos
+], crearUsuario );
+
 
 // Login
-router.post(
-  "/",
-  [
-    check("email", "Email is required").isEmail(),
-    check("password", "Password is required").not().isEmpty(),
-    validateFields,
-  ],
-  login
-);
+router.post('/',[
+    check('email', 'El email es obligatorio').isEmail(),
+    check('password', 'El password es obligatorio').not().isEmpty(),
+    validarCampos
+], login );
 
-// Renew token
-router.get("/renew", validateJWT, renew);
+// Revalidar Token
+router.get('/renew', validarJWT, renewToken );
+
+
+
+
+
+
 
 module.exports = router;

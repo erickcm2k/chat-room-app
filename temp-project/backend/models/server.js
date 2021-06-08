@@ -1,59 +1,67 @@
 // Servidor de Express
-const express = require("express");
-const http = require("http");
-const socketio = require("socket.io");
-const path = require("path");
-const cors = require("cors");
-const Sockets = require("./sockets");
-const { dbConnection } = require("../database/config");
+const express  = require('express');
+const http     = require('http');
+const socketio = require('socket.io');
+const path     = require('path');
+const cors     = require('cors');
+
+const Sockets  = require('./sockets');
+const { dbConnection } = require('../database/config');
 
 class Server {
-  constructor() {
-    this.app = express();
-    this.port = process.env.PORT;
 
-    dbConnection();
+    constructor() {
 
-    // Http server
-    this.server = http.createServer(this.app);
+        this.app  = express();
+        this.port = process.env.PORT;
 
-    // Configuraciones de sockets
-    this.io = socketio(this.server, {
-      /* configuraciones */
-    });
-  }
+        // Conectar a DB
+        dbConnection();
 
-  middlewares() {
-    // Desplegar el directorio público
-    this.app.use(express.static(path.resolve(__dirname, "../public")));
+        // Http server
+        this.server = http.createServer( this.app );
+        
+        // Configuraciones de sockets
+        this.io = socketio( this.server, { /* configuraciones */ } );
+    }
 
-    // TODO CORS
-    this.app.use(cors());
+    middlewares() {
+        // Desplegar el directorio público
+        this.app.use( express.static( path.resolve( __dirname, '../public' ) ) );
 
-    this.app.use(express.json());
-    // API Endpoints
-    this.app.use("/api/login", require("../router/auth"));
-    this.app.use("/api/messages", require("../router/messages"));
-  }
+        // CORS
+        this.app.use( cors() );
 
-  // Esta configuración se puede tener aquí o como propieda de clase
-  // depende mucho de lo que necesites
-  configurarSockets() {
-    new Sockets(this.io);
-  }
+        
+        // Parseo del body
+        this.app.use( express.json() );
 
-  execute() {
-    // Inicializar Middlewares
-    this.middlewares();
+        // API End Points
+        this.app.use( '/api/login', require('../router/auth') );
+        this.app.use( '/api/mensajes', require('../router/mensajes') );
+    }
 
-    // Inicializar sockets
-    this.configurarSockets();
+    // Esta configuración se puede tener aquí o como propieda de clase
+    // depende mucho de lo que necesites
+    configurarSockets() {
+        new Sockets( this.io );
+    }
 
-    // Inicializar Server
-    this.server.listen(this.port, () => {
-      console.log("Server corriendo en puerto:", this.port);
-    });
-  }
+    execute() {
+
+        // Inicializar Middlewares
+        this.middlewares();
+
+        // Inicializar sockets
+        this.configurarSockets();
+
+        // Inicializar Server
+        this.server.listen( this.port, () => {
+            console.log('Server corriendo en puerto:', this.port );
+        });
+    }
+
 }
+
 
 module.exports = Server;
